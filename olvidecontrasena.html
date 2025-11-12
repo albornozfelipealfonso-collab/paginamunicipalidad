@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recuperar Contraseña</title>
+  
+  <!-- Material Icons + Roboto -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tus estilos -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div style="text-align: center; margin-bottom: 30px;">
+  <button class="btn btn-secondary" onclick="goBack()" style="display: inline-flex; align-items: center; gap: 8px;">
+    <span class="material-icons">arrow_back</span>
+    Volver al inicio de sesión
+  </button>
+</div>
+  <div class="container" style="padding-top: 100px;">
+    <div class="card" style="max-width: 400px; margin: 0 auto;">
+      <div class="card-header">
+        <h2>Recuperar Contraseña</h2>
+      </div>
+      <div class="card-content">
+        <form id="forgotForm">
+          <div class="form-group">
+            <label for="forgotEmail">Email</label>
+            <input type="email" id="forgotEmail" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">
+            <span class="material-icons">email</span>
+            Enviar enlace de recuperación
+          </button>
+        </form>
+        <div id="forgotMessage" style="margin-top:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script modular de Firebase + lógica -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    // Configuración de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDzUBlpfMdhMwF3GWdF37AIS9g0I76NfIw",
+      authDomain: "agendamientolicencias.firebaseapp.com",
+      databaseURL: "https://agendamientolicencias-default-rtdb.firebaseio.com",
+      projectId: "agendamientolicencias",
+      storageBucket: "agendamientolicencias.firebasestorage.app",
+      messagingSenderId: "452575623812",
+      appId: "1:452575623812:web:855de8f58d55c39472e0d1"
+    };
+
+    // Inicializa Firebase y Auth
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Selecciona el formulario y el contenedor de mensajes
+    const form   = document.getElementById('forgotForm');
+    const output = document.getElementById('forgotMessage');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      output.innerHTML = ''; 
+      const email = document.getElementById('forgotEmail').value;
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        output.innerHTML = `
+          <div class="alert alert-success">
+            <span class="material-icons" style="vertical-align: middle;">check_circle</span>
+            Revisa tu correo para restablecer la contraseña.Porfavor revisa tu carpeta spam
+          </div>`;
+      } catch (err) {
+        console.error('Firebase Error:', err.code, err.message);
+        const msg = err.code === 'auth/user-not-found'
+          ? 'No existe un usuario con ese correo.'
+          : err.message;
+        output.innerHTML = `
+          <div class="alert alert-error">
+            <span class="material-icons" style="vertical-align: middle;">error</span>
+            ${msg}
+          </div>`;
+      }
+    });
+    window.goBack = function() {
+  // Intenta volver a la página anterior
+  if (document.referrer && document.referrer !== window.location.href) {
+    window.history.back();
+  } else {
+    // Si no hay referrer, va a la página principal
+    window.location.href = 'wea2.html'; // Cambia por el nombre de tu archivo principal
+  }
+}
+  </script>
+</body>
+</html>
